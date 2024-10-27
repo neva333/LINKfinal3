@@ -23,21 +23,11 @@ client.on('messageCreate', message => {
 
             if (targetChannel) {
                 urls.forEach(url => {
-                    targetChannel.send(url)
-                        .then(() => {
-                            console.log(`URL sent to ${TARGET_CHANNEL_ID}: ${url}`);
-                        })
-                        .catch(console.error);
+                    targetChannel.send(url).catch(console.error);
                 });
 
-                // Optional: Send the modified message without URLs back to the source channel
-                if (messageWithoutUrls) {
-                    message.channel.send(`Original message without URLs: ${messageWithoutUrls}`)
-                        .then(() => {
-                            console.log(`Message without URLs sent to ${SOURCE_CHANNEL_ID}`);
-                        })
-                        .catch(console.error);
-                }
+                // メッセージを編集してURLを削除
+                message.edit(messageWithoutUrls).catch(console.error);
             }
         }
     }
