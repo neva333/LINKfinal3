@@ -15,6 +15,7 @@ client.once('ready', () => {
 });
 
 client.on('messageCreate', message => {
+    console.log(`Message received: ${message.content}`); // デバッグログ追加
     if (message.channel.id === SOURCE_CHANNEL_ID && message.content.includes('http') && !message.author.bot) {
         if (!processedMessages.has(message.id)) {
             const targetChannel = client.channels.cache.get(TARGET_CHANNEL_ID);
@@ -26,6 +27,8 @@ client.on('messageCreate', message => {
                     })
                     .catch(console.error);
             }
+        } else {
+            console.log(`Message already processed: ${message.id}`); // デバッグログ追加
         }
     }
 });
