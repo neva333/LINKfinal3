@@ -15,11 +15,12 @@ client.once('ready', () => {
 client.on('messageCreate', message => {
     if (message.channel.id === SOURCE_CHANNEL_ID && message.content.includes('http')) {
         const targetChannel = client.channels.cache.get(TARGET_CHANNEL_ID);
-        if (targetChannel && !message.flagged) {
+        if (targetChannel && !message.author.bot) { // ボット自身のメッセージを無視
             targetChannel.send(message.content)
                 .then(() => {
-                    message.flagged = true; // フラグを設定して重複送信を防ぐ
-                });
+                    console.log(`Message sent to ${TARGET_CHANNEL_ID}`);
+                })
+                .catch(console.error);
         }
     }
 });
