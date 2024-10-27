@@ -5,7 +5,8 @@ const app = express();
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 
 const SOURCE_CHANNEL_ID = process.env.SOURCE_CHANNEL_ID;
-const TARGET_CHANNEL_ID = process.env.TARGET_CHANNEL_ID;
+const URL_TARGET_CHANNEL_ID = process.env.URL_TARGET_CHANNEL_ID; // URLを送信するチャンネル
+const IMAGE_TARGET_CHANNEL_ID = process.env.IMAGE_TARGET_CHANNEL_ID; // 画像を送信するチャンネル
 const PORT = process.env.PORT || 3000;
 
 client.once('ready', () => {
@@ -20,11 +21,11 @@ client.on('messageCreate', async message => {
         // URLの転送
         if (urls) {
             const messageWithoutUrls = message.content.replace(urlRegex, '').trim();
-            const targetChannel = client.channels.cache.get(TARGET_CHANNEL_ID);
+            const urlTargetChannel = client.channels.cache.get(URL_TARGET_CHANNEL_ID);
 
-            if (targetChannel) {
+            if (urlTargetChannel) {
                 for (const url of urls) {
-                    await targetChannel.send(url).catch(console.error);
+                    await urlTargetChannel.send(url).catch(console.error);
                 }
 
                 // メッセージを編集してURLを削除
@@ -39,11 +40,11 @@ client.on('messageCreate', async message => {
 
         // 画像の転送
         if (message.attachments.size > 0) {
-            const targetChannel = client.channels.cache.get(TARGET_CHANNEL_ID);
-            if (targetChannel) {
+            const imageTargetChannel = client.channels.cache.get(IMAGE_TARGET_CHANNEL_ID);
+            if (imageTargetChannel) {
                 message.attachments.forEach(attachment => {
                     if (attachment.contentType.startsWith('image/')) {
-                        targetChannel.send({ files: [attachment.url] }).catch(console.error);
+                        imageTargetChannel.send({ files: [attachment.url] }).catch(console.error);
                     }
                 });
             }
@@ -58,3 +59,4 @@ app.get('/', (req, res) => res.send('Bot is running'));
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server is running on http://0.0.0.0:${PORT}`);
 });
+
