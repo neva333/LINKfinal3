@@ -20,6 +20,7 @@ client.on('messageCreate', async message => {
 
         // URLの転送
         if (urls) {
+            console.log(`URLs detected: ${urls}`); // デバッグログ追加
             const messageWithoutUrls = message.content.replace(urlRegex, '').trim();
             const urlTargetChannel = client.channels.cache.get(URL_TARGET_CHANNEL_ID);
 
@@ -35,7 +36,11 @@ client.on('messageCreate', async message => {
                     // メッセージが空になった場合、削除する
                     await message.delete().catch(console.error);
                 }
+            } else {
+                console.error(`URL target channel not found: ${URL_TARGET_CHANNEL_ID}`); // デバッグログ追加
             }
+        } else {
+            console.log('No URLs detected'); // デバッグログ追加
         }
 
         // 画像の転送
@@ -47,6 +52,8 @@ client.on('messageCreate', async message => {
                         imageTargetChannel.send({ files: [attachment.url] }).catch(console.error);
                     }
                 });
+            } else {
+                console.error(`Image target channel not found: ${IMAGE_TARGET_CHANNEL_ID}`); // デバッグログ追加
             }
         }
     }
@@ -59,4 +66,3 @@ app.get('/', (req, res) => res.send('Bot is running'));
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server is running on http://0.0.0.0:${PORT}`);
 });
-
