@@ -8,27 +8,37 @@ const SOURCE_CHANNEL_ID = process.env.SOURCE_CHANNEL_ID;
 const TARGET_CHANNEL_ID = process.env.TARGET_CHANNEL_ID;
 const PORT = process.env.PORT || 3000;
 
-let processedMessages = new Set();
-
 client.once('ready', () => {
     console.log(`Logged in as ${client.user.tag}`);
 });
 
 client.on('messageCreate', message => {
-    console.log(`Message received: ${message.content}`); // デバッグログ追加
-    if (message.channel.id === SOURCE_CHANNEL_ID && message.content.includes('http') && !message.author.bot) {
-        if (!processedMessages.has(message.id)) {
+    if (message.channel.id === SOURCE_CHANNEL_ID && !message.author.bot) {
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        const urls = message.content.match(urlRegex);
+
+        if (urls) {
+            const messageWithoutUrls = message.content.replace(urlRegex, '').trim();
             const targetChannel = client.channels.cache.get(TARGET_CHANNEL_ID);
+
             if (targetChannel) {
-                targetChannel.send(message.content)
-                    .then(() => {
-                        console.log(`Message sent to ${TARGET_CHANNEL_ID}`);
-                        processedMessages.add(message.id); // メッセージIDを保存して重複送信を防ぐ
-                    })
-                    .catch(console.error);
+                urls.forEach(url => {
+                    targetChannel.send(url)
+                        .then(() => {
+                            console.log(`URL sent to ${TARGET_CHANNEL_ID}: ${url}`);
+                        })
+                        .catch(console.error);
+                });
+
+                // Optional: Send the modified message without URLs back to the source channel
+                if (messageWithoutUrls) {
+                    message.channel.send(`Original message without URLs: ${messageWithoutUrls}`)
+                        .then(() => {
+                            console.log(`Message without URLs sent to ${SOURCE_CHANNEL_ID}`);
+                        })
+                        .catch(console.error);
+                }
             }
-        } else {
-            console.log(`Message already processed: ${message.id}`); // デバッグログ追加
         }
     }
 });
