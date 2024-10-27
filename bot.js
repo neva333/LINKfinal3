@@ -1,8 +1,9 @@
+require('dotenv').config();
 const { Client, GatewayIntentBits } = require('discord.js');
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 
-const SOURCE_CHANNEL_ID = '123456789012345678';  // URLを検出するチャンネルのID
-const TARGET_CHANNEL_ID = '987654321098765432';  // URLを転送するチャンネルのID
+const SOURCE_CHANNEL_ID = process.env.SOURCE_CHANNEL_ID;
+const TARGET_CHANNEL_ID = process.env.TARGET_CHANNEL_ID;
 
 client.once('ready', () => {
     console.log(`Logged in as ${client.user.tag}`);
