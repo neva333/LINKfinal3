@@ -13,9 +13,9 @@ client.once('ready', () => {
 });
 
 client.on('messageCreate', message => {
-    if (message.channel.id === SOURCE_CHANNEL_ID && message.content.includes('http')) {
+    if (message.channel.id === SOURCE_CHANNEL_ID && message.content.includes('http') && !message.author.bot) {
         const targetChannel = client.channels.cache.get(TARGET_CHANNEL_ID);
-        if (targetChannel && !message.author.bot) { // ボット自身のメッセージを無視
+        if (targetChannel) {
             targetChannel.send(message.content)
                 .then(() => {
                     console.log(`Message sent to ${TARGET_CHANNEL_ID}`);
