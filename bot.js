@@ -12,7 +12,7 @@ client.once('ready', () => {
     console.log(`Logged in as ${client.user.tag}`);
 });
 
-client.on('messageCreate', message => {
+client.on('messageCreate', async message => {
     if (message.channel.id === SOURCE_CHANNEL_ID && !message.author.bot) {
         const urlRegex = /(https?:\/\/[^\s]+)/g;
         const urls = message.content.match(urlRegex);
@@ -22,12 +22,17 @@ client.on('messageCreate', message => {
             const targetChannel = client.channels.cache.get(TARGET_CHANNEL_ID);
 
             if (targetChannel) {
-                urls.forEach(url => {
-                    targetChannel.send(url).catch(console.error);
-                });
+                for (const url of urls) {
+                    await targetChannel.send(url).catch(console.error);
+                }
 
                 // メッセージを編集してURLを削除
-                message.edit(messageWithoutUrls).catch(console.error);
+                if (messageWithoutUrls) {
+                    await message.edit(messageWithoutUrls).catch(console.error);
+                } else {
+                    // メッセージが空になった場合、削除する
+                    await message.delete().catch(console.error);
+                }
             }
         }
     }
