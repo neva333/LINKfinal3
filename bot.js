@@ -15,26 +15,10 @@ client.once('ready', () => {
 client.on('messageCreate', message => {
     if (message.channel.id === SOURCE_CHANNEL_ID && message.content.includes('http')) {
         const targetChannel = client.channels.cache.get(TARGET_CHANNEL_ID);
-        if (targetChannel) {
+        if (targetChannel && !message.flagged) {
             targetChannel.send(message.content)
                 .then(() => {
-                    // メッセージが送信された後にフラグを設定
-                    message.flagged = true;
-                });
-        }
-    }
-});
-
-// メッセージが再度処理されないようにするためのフラグチェック
-client.on('messageCreate', message => {
-    if (message.flagged) return;
-
-    if (message.channel.id === SOURCE_CHANNEL_ID && message.content.includes('http')) {
-        const targetChannel = client.channels.cache.get(TARGET_CHANNEL_ID);
-        if (targetChannel) {
-            targetChannel.send(message.content)
-                .then(() => {
-                    message.flagged = true;
+                    message.flagged = true; // フラグを設定して重複送信を防ぐ
                 });
         }
     }
