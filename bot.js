@@ -17,6 +17,7 @@ client.on('messageCreate', async message => {
         const urlRegex = /(https?:\/\/[^\s]+)/g;
         const urls = message.content.match(urlRegex);
 
+        // URLの転送
         if (urls) {
             const messageWithoutUrls = message.content.replace(urlRegex, '').trim();
             const targetChannel = client.channels.cache.get(TARGET_CHANNEL_ID);
@@ -33,6 +34,18 @@ client.on('messageCreate', async message => {
                     // メッセージが空になった場合、削除する
                     await message.delete().catch(console.error);
                 }
+            }
+        }
+
+        // 画像の転送
+        if (message.attachments.size > 0) {
+            const targetChannel = client.channels.cache.get(TARGET_CHANNEL_ID);
+            if (targetChannel) {
+                message.attachments.forEach(attachment => {
+                    if (attachment.contentType.startsWith('image/')) {
+                        targetChannel.send({ files: [attachment.url] }).catch(console.error);
+                    }
+                });
             }
         }
     }
